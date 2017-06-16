@@ -8,6 +8,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.MotionEvent;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
@@ -21,7 +22,7 @@ import com.slide.liaoli.R;
  *
  * @author zhy
  */
-public class BinarySlidingMenu extends HorizontalScrollView {
+public class BinarySlidingMenu extends CustomHScrollView {
 
 
     private static final String TAG = "BinarySlidingMenu";
@@ -43,6 +44,11 @@ public class BinarySlidingMenu extends HorizontalScrollView {
 
     private boolean isLeftMenuOpen;
     private boolean isRightMenuOpen;
+    private View toolbar;
+
+    public void setToolbar(View toolbar) {
+        this.toolbar = toolbar;
+    }
 
     /**
      * 回调的接口
@@ -118,7 +124,7 @@ public class BinarySlidingMenu extends HorizontalScrollView {
             mRightMenu = (ViewGroup) mWrapper.getChildAt(1);
 
             mMenuWidth = mScreenWidth - mMenuRightPadding;
-            mHalfMenuWidth = mMenuWidth / 3;
+            mHalfMenuWidth = mMenuWidth / 2;
             mLeftMenu.getLayoutParams().width = mMenuWidth;
             mContent.getLayoutParams().width = mScreenWidth;
             mRightMenu.getLayoutParams().width = mMenuWidth;
@@ -179,9 +185,20 @@ public class BinarySlidingMenu extends HorizontalScrollView {
                     if (scrollX > mHalfMenuWidth + mMenuWidth) {
                         this.smoothScrollTo(mMenuWidth + mMenuWidth, 0);
                         mRightMenu.bringToFront();
+
+                        if (!isRightMenuOpen && mOnMenuOpenListener != null) {
+                            mOnMenuOpenListener.onMenuOpen(true, 1);
+                        }
+                        isRightMenuOpen = true;
+
                     } else//关闭右侧侧滑菜单
                     {
                         this.smoothScrollTo(mMenuWidth, 0);
+
+                        if (isRightMenuOpen && mOnMenuOpenListener != null) {
+                            mOnMenuOpenListener.onMenuOpen(false, 1);
+                        }
+                        isRightMenuOpen = false;
                     }
                 }
 
@@ -189,6 +206,28 @@ public class BinarySlidingMenu extends HorizontalScrollView {
         }
         return super.onTouchEvent(ev);
     }
+
+    public void closeRightPager(){
+        this.smoothScrollTo(mMenuWidth, 0);
+        isRightMenuOpen = false;
+    }
+
+    public void openRightPager(){
+        this.smoothScrollTo(mMenuWidth + mMenuWidth, 0);
+        isRightMenuOpen = true;
+    }
+
+    public void closeLeftPager(){
+        this.smoothScrollTo(mMenuWidth, 0);
+        isLeftMenuOpen = false;
+    }
+
+    public void openLeftPager(){
+        this.smoothScrollTo(0, 0);
+        isLeftMenuOpen = true;
+    }
+
+
 
     @Override
     protected void onScrollChanged(int l, int t, int oldl, int oldt) {
@@ -211,6 +250,8 @@ public class BinarySlidingMenu extends HorizontalScrollView {
         ColorDrawable colorDrawable = new ColorDrawable(Color.argb(alpha, r, g, b));
 
         mContent.setForeground(colorDrawable);
+
+        toolbar.setBackground(colorDrawable);
 
         ViewHelper.setTranslationX(mContent, mMenuWidth * (scale - 1));
 
