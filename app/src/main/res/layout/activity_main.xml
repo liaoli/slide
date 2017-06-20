@@ -20,7 +20,7 @@
 
         </com.slide.view.Toolbar>
 
-        <com.slide.view.BinarySlidingMenu
+        <com.slide.view.BinarySlidingView
             android:id="@+id/id_menu"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
@@ -63,7 +63,7 @@
                 </FrameLayout>
 
             </com.slide.view.MyScroolView>
-        </com.slide.view.BinarySlidingMenu>
+        </com.slide.view.BinarySlidingView>
     </LinearLayout>
 
     <com.slide.view.FlingRecycleView

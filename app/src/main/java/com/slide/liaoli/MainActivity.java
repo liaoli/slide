@@ -18,8 +18,8 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
-import com.slide.view.BinarySlidingMenu;
-import com.slide.view.BinarySlidingMenu.OnMenuOpenListener;
+import com.slide.view.BinarySlidingView;
+import com.slide.view.BinarySlidingView.OnMenuOpenListener;
 import com.slide.view.DepthPageTransformer;
 import com.slide.view.FlingRecycleView;
 import com.slide.view.adapter.ImageCardAdapter;
@@ -28,7 +28,7 @@ import com.slide.view.layoutmanager.impl.CurveTransformer;
 
 public class MainActivity extends FragmentActivity implements BlankFragment.OnFragmentInteractionListener {
     private static final String TAG = "MainActivity";
-    private BinarySlidingMenu mMenu;
+    private BinarySlidingView mMenu;
     private List<String> mDatas = new ArrayList<String>();
     private List<Fragment> fragments = new ArrayList<>();
     FlingRecycleView mPagerRecycleView;
@@ -66,11 +66,11 @@ public class MainActivity extends FragmentActivity implements BlankFragment.OnFr
 
 
         mResId = new ArrayList<Integer>();
-        mResId.add(R.drawable.icon_group);
-        mResId.add(R.drawable.icon_camere);
-        mResId.add(R.drawable.icon_discover);
-        mResId.add(R.drawable.icon_flow);
-        mResId.add(R.drawable.icon_live);
+        mResId.add(R.drawable.icon_navigation_group);
+        mResId.add(R.drawable.icon_navigation_camere);
+        mResId.add(R.drawable.icon_navigation_discover);
+        mResId.add(R.drawable.icon_navigation_flow);
+        mResId.add(R.drawable.icon_navigation_live);
         mCardItems = new ArrayList<ImageCardAdapter.CardItem>(5);
         ImageCardAdapter.CardItem cardItem;
         for (int i = 0; i < 5; i++) {
@@ -159,9 +159,10 @@ public class MainActivity extends FragmentActivity implements BlankFragment.OnFr
     private void initView() {
         View toolbar = findViewById(R.id.toolbar);
 
-        mMenu = (BinarySlidingMenu) findViewById(R.id.id_menu);
+        mMenu = (BinarySlidingView) findViewById(R.id.id_menu);
 
         mMenu.setToolbar(toolbar);
+
         mMenu.setOnMenuOpenListener(new OnMenuOpenListener()
 
         {

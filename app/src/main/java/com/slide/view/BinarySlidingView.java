@@ -11,18 +11,17 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.HorizontalScrollView;
 
 import com.nineoldandroids.view.ViewHelper;
 import com.slide.utils.ScreenUtils;
 import com.slide.liaoli.R;
 
 /**
- * http://blog.csdn.net/lmj623565791
+ * 
  *
- * @author zhy
+ * @author liaoli
  */
-public class BinarySlidingMenu extends CustomHScrollView {
+public class BinarySlidingView extends CustomHScrollView {
 
 
     private static final String TAG = "BinarySlidingMenu";
@@ -37,9 +36,9 @@ public class BinarySlidingMenu extends CustomHScrollView {
 
     private boolean once;
 
-    private ViewGroup mLeftMenu;
-    private FrameLayout mContent;
-    private ViewGroup mRightMenu;
+    private ViewGroup mLeftContent;
+    private FrameLayout mCenterContent;
+    private ViewGroup mRightContent;
     private ViewGroup mWrapper;
 
     private boolean isLeftMenuOpen;
@@ -69,7 +68,7 @@ public class BinarySlidingMenu extends CustomHScrollView {
         this.mOnMenuOpenListener = mOnMenuOpenListener;
     }
 
-    public BinarySlidingMenu(Context context, AttributeSet attrs) {
+    public BinarySlidingView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
 
     }
@@ -85,17 +84,17 @@ public class BinarySlidingMenu extends CustomHScrollView {
     private int mMenuRightPadding = 0;
 
 
-    public BinarySlidingMenu(Context context, AttributeSet attrs, int defStyle) {
+    public BinarySlidingView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         mScreenWidth = ScreenUtils.getScreenWidth(context);
 
         TypedArray a = context.getTheme().obtainStyledAttributes(attrs,
-                R.styleable.BinarySlidingMenu, defStyle, 0);
+                R.styleable.BinarySlidingView, defStyle, 0);
         int n = a.getIndexCount();
         for (int i = 0; i < n; i++) {
             int attr = a.getIndex(i);
             switch (attr) {
-                case R.styleable.BinarySlidingMenu_rightPadding:
+                case R.styleable.BinarySlidingView_rightPadding:
                     // 默认50
                     mMenuRightPadding = a.getDimensionPixelSize(attr,
                             (int) TypedValue.applyDimension(
@@ -107,7 +106,7 @@ public class BinarySlidingMenu extends CustomHScrollView {
         a.recycle();
     }
 
-    public BinarySlidingMenu(Context context) {
+    public BinarySlidingView(Context context) {
         this(context, null, 0);
     }
 
@@ -119,15 +118,15 @@ public class BinarySlidingMenu extends CustomHScrollView {
         if (!once) {
 
             mWrapper = (ViewGroup) getChildAt(0);
-            mLeftMenu = (ViewGroup) mWrapper.getChildAt(0);
-            mContent = (FrameLayout) mWrapper.getChildAt(2);
-            mRightMenu = (ViewGroup) mWrapper.getChildAt(1);
+            mLeftContent = (ViewGroup) mWrapper.getChildAt(0);
+            mCenterContent = (FrameLayout) mWrapper.getChildAt(2);
+            mRightContent = (ViewGroup) mWrapper.getChildAt(1);
 
             mMenuWidth = mScreenWidth - mMenuRightPadding;
             mHalfMenuWidth = mMenuWidth / 2;
-            mLeftMenu.getLayoutParams().width = mMenuWidth;
-            mContent.getLayoutParams().width = mScreenWidth;
-            mRightMenu.getLayoutParams().width = mMenuWidth;
+            mLeftContent.getLayoutParams().width = mMenuWidth;
+            mCenterContent.getLayoutParams().width = mScreenWidth;
+            mRightContent.getLayoutParams().width = mMenuWidth;
 
         }
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
@@ -168,7 +167,7 @@ public class BinarySlidingMenu extends CustomHScrollView {
 
                     } else//打开左侧菜单
                     {
-                        mLeftMenu.bringToFront();
+                        mLeftContent.bringToFront();
                         this.smoothScrollTo(0, 0);
                         //如果当前左侧菜单是关闭状态，且mOnMenuOpenListener不为空，则回调打开菜单
                         if (!isLeftMenuOpen && mOnMenuOpenListener != null) {
@@ -184,7 +183,7 @@ public class BinarySlidingMenu extends CustomHScrollView {
                     //打开右侧侧滑菜单
                     if (scrollX > mHalfMenuWidth + mMenuWidth) {
                         this.smoothScrollTo(mMenuWidth + mMenuWidth, 0);
-                        mRightMenu.bringToFront();
+                        mRightContent.bringToFront();
 
                         if (!isRightMenuOpen && mOnMenuOpenListener != null) {
                             mOnMenuOpenListener.onMenuOpen(true, 1);
@@ -214,6 +213,7 @@ public class BinarySlidingMenu extends CustomHScrollView {
 
     public void openRightPager(){
         this.smoothScrollTo(mMenuWidth + mMenuWidth, 0);
+        mRightContent.bringToFront();
         isRightMenuOpen = true;
     }
 
@@ -224,6 +224,7 @@ public class BinarySlidingMenu extends CustomHScrollView {
 
     public void openLeftPager(){
         this.smoothScrollTo(0, 0);
+        mLeftContent.bringToFront();
         isLeftMenuOpen = true;
     }
 
@@ -246,14 +247,15 @@ public class BinarySlidingMenu extends CustomHScrollView {
             alpha = (int) (255 * (1 - scale));
             b = 255;
         }
-        Log.e(TAG, "onScrollChanged  alpha = "+ alpha  + ",scale - 1 = " + (scale -1));
+        Log.e(TAG, "onScrollChanged  alpha = "+ alpha  + ",scale - 1 = " + (scale -1)  + ",l = " + l + ",oldl = " + oldl);
         ColorDrawable colorDrawable = new ColorDrawable(Color.argb(alpha, r, g, b));
 
-        mContent.setForeground(colorDrawable);
+        mCenterContent.setForeground(colorDrawable);
 
         toolbar.setBackground(colorDrawable);
 
-        ViewHelper.setTranslationX(mContent, mMenuWidth * (scale - 1));
+        //ViewHelper.setTranslationX(mCenterContent, mMenuWidth * (scale - 1));
+        mCenterContent.setTranslationX(mMenuWidth * (scale - 1));
 
     }
 }

@@ -3,7 +3,7 @@
 
     <attr name="rightPadding" format="dimension" />
 
-    <declare-styleable name="BinarySlidingMenu">
+    <declare-styleable name="BinarySlidingView">
         <attr name="rightPadding" />
     </declare-styleable>
 
