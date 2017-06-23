@@ -17,8 +17,6 @@ import com.slide.utils.ScreenUtils;
 import com.slide.liaoli.R;
 
 /**
- * 
- *
  * @author liaoli
  */
 public class BinarySlidingView extends CustomHScrollView {
@@ -123,7 +121,7 @@ public class BinarySlidingView extends CustomHScrollView {
             mRightContent = (ViewGroup) mWrapper.getChildAt(1);
 
             mMenuWidth = mScreenWidth - mMenuRightPadding;
-            mHalfMenuWidth = mMenuWidth / 2;
+            mHalfMenuWidth = mMenuWidth / 4;
             mLeftContent.getLayoutParams().width = mMenuWidth;
             mCenterContent.getLayoutParams().width = mScreenWidth;
             mRightContent.getLayoutParams().width = mMenuWidth;
@@ -147,87 +145,137 @@ public class BinarySlidingView extends CustomHScrollView {
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
         int action = ev.getAction();
+        int scrollX = getScrollX();
         switch (action) {
             // Up时，进行判断，如果显示区域大于菜单宽度一半则完全显示，否则隐藏
             case MotionEvent.ACTION_UP:
-                int scrollX = getScrollX();
+
+
                 //如果是操作左侧菜单
                 if (isOperateLeft) {
-                    //如果影藏的区域大于菜单一半，则影藏菜单
-                    Log.e(TAG, "onTouchEvent scrollX = " + scrollX + ",mHalfMenuWidth = " + mHalfMenuWidth + "scrollX、3 = " + (scrollX) / 3);
-                    if (scrollX > mScreenWidth - mHalfMenuWidth) {
-                        this.smoothScrollTo(mMenuWidth, 0);
-                        //如果当前左侧菜单是开启状态，且mOnMenuOpenListener不为空，则回调关闭菜单
-                        if (isLeftMenuOpen && mOnMenuOpenListener != null) {
-                            //第一个参数true：打开菜单，false：关闭菜单;第二个参数 0 代表左侧；1代表右侧
-                            mOnMenuOpenListener.onMenuOpen(false, 0);
+                    Log.e(TAG, "onTouchEvent scrollX = " + scrollX + ",mScreenWidth = " + mScreenWidth + ",mHalfMenuWidth = " + mHalfMenuWidth + ",(mScreenWidth - mHalfMenuWidth)= " + (mScreenWidth - mHalfMenuWidth) +"isOperateLeft = " + isOperateLeft + "isLeftMenuOpen = " +isLeftMenuOpen);
+                    if (isLeftMenuOpen) {
+                        //如果影藏的区域大于菜单一半，则影藏菜单
+                        if (scrollX > mHalfMenuWidth) {
+                            this.smoothScrollTo(mMenuWidth, 0);
+                            //如果当前左侧菜单是开启状态，且mOnMenuOpenListener不为空，则回调关闭菜单
+                            if (isLeftMenuOpen && mOnMenuOpenListener != null) {
+                                //第一个参数true：打开菜单，false：关闭菜单;第二个参数 0 代表左侧；1代表右侧
+                                mOnMenuOpenListener.onMenuOpen(false, 0);
+                            }
+                            isLeftMenuOpen = false;
+
+
+                        } else//打开左侧菜单
+                        {
+                            mLeftContent.bringToFront();
+                            this.smoothScrollTo(0, 0);
+                            //如果当前左侧菜单是关闭状态，且mOnMenuOpenListener不为空，则回调打开菜单
+                            if (!isLeftMenuOpen && mOnMenuOpenListener != null) {
+                                mOnMenuOpenListener.onMenuOpen(true, 0);
+                            }
+                            isLeftMenuOpen = true;
+
                         }
-                        isLeftMenuOpen = false;
+                    } else {
+                        //如果影藏的区域大于菜单一半，则影藏菜单
+
+                        if (scrollX > mScreenWidth - mHalfMenuWidth) {
+                            this.smoothScrollTo(mMenuWidth, 0);
+                            //如果当前左侧菜单是开启状态，且mOnMenuOpenListener不为空，则回调关闭菜单
+                            if (isLeftMenuOpen && mOnMenuOpenListener != null) {
+                                //第一个参数true：打开菜单，false：关闭菜单;第二个参数 0 代表左侧；1代表右侧
+                                mOnMenuOpenListener.onMenuOpen(false, 0);
+                            }
+                            isLeftMenuOpen = false;
 
 
-                    } else//打开左侧菜单
-                    {
-                        mLeftContent.bringToFront();
-                        this.smoothScrollTo(0, 0);
-                        //如果当前左侧菜单是关闭状态，且mOnMenuOpenListener不为空，则回调打开菜单
-                        if (!isLeftMenuOpen && mOnMenuOpenListener != null) {
-                            mOnMenuOpenListener.onMenuOpen(true, 0);
+                        } else//打开左侧菜单
+                        {
+                            mLeftContent.bringToFront();
+                            this.smoothScrollTo(0, 0);
+                            //如果当前左侧菜单是关闭状态，且mOnMenuOpenListener不为空，则回调打开菜单
+                            if (!isLeftMenuOpen && mOnMenuOpenListener != null) {
+                                mOnMenuOpenListener.onMenuOpen(true, 0);
+                            }
+                            isLeftMenuOpen = true;
+
                         }
-                        isLeftMenuOpen = true;
-
                     }
                 }
 
                 //操作右侧
                 if (isOperateRight) {
-                    //打开右侧侧滑菜单
-                    if (scrollX > mHalfMenuWidth + mMenuWidth) {
-                        this.smoothScrollTo(mMenuWidth + mMenuWidth, 0);
-                        mRightContent.bringToFront();
+                    Log.e(TAG, "onTouchEvent scrollX = " + scrollX + ",mScreenWidth = " + mScreenWidth + ",mHalfMenuWidth = " + mHalfMenuWidth + ",(mScreenWidth + mHalfMenuWidth)= " + (mScreenWidth + mHalfMenuWidth) +"isOperateRight = " + isOperateRight + "isRightMenuOpen = " +isRightMenuOpen);
+                    if (isRightMenuOpen) {
+                        //打开右侧侧滑菜单
+                        if (scrollX > 2 * mMenuWidth - mHalfMenuWidth) {
+                            this.smoothScrollTo(mMenuWidth + mMenuWidth, 0);
+                            mRightContent.bringToFront();
 
-                        if (!isRightMenuOpen && mOnMenuOpenListener != null) {
-                            mOnMenuOpenListener.onMenuOpen(true, 1);
+                            if (!isRightMenuOpen && mOnMenuOpenListener != null) {
+                                mOnMenuOpenListener.onMenuOpen(true, 1);
+                            }
+                            isRightMenuOpen = true;
+
+                        } else//关闭右侧侧滑菜单
+                        {
+                            this.smoothScrollTo(mMenuWidth, 0);
+
+                            if (isRightMenuOpen && mOnMenuOpenListener != null) {
+                                mOnMenuOpenListener.onMenuOpen(false, 1);
+                            }
+                            isRightMenuOpen = false;
                         }
-                        isRightMenuOpen = true;
+                    } else {
+                        //打开右侧侧滑菜单
+                        if (scrollX > mHalfMenuWidth + mMenuWidth) {
+                            this.smoothScrollTo(mMenuWidth + mMenuWidth, 0);
+                            mRightContent.bringToFront();
 
-                    } else//关闭右侧侧滑菜单
-                    {
-                        this.smoothScrollTo(mMenuWidth, 0);
+                            if (!isRightMenuOpen && mOnMenuOpenListener != null) {
+                                mOnMenuOpenListener.onMenuOpen(true, 1);
+                            }
+                            isRightMenuOpen = true;
 
-                        if (isRightMenuOpen && mOnMenuOpenListener != null) {
-                            mOnMenuOpenListener.onMenuOpen(false, 1);
+                        } else//关闭右侧侧滑菜单
+                        {
+                            this.smoothScrollTo(mMenuWidth, 0);
+
+                            if (isRightMenuOpen && mOnMenuOpenListener != null) {
+                                mOnMenuOpenListener.onMenuOpen(false, 1);
+                            }
+                            isRightMenuOpen = false;
                         }
-                        isRightMenuOpen = false;
                     }
                 }
-
                 return true;
         }
         return super.onTouchEvent(ev);
     }
 
-    public void closeRightPager(){
+
+    public void closeRightPager() {
         this.smoothScrollTo(mMenuWidth, 0);
         isRightMenuOpen = false;
     }
 
-    public void openRightPager(){
+    public void openRightPager() {
         this.smoothScrollTo(mMenuWidth + mMenuWidth, 0);
         mRightContent.bringToFront();
         isRightMenuOpen = true;
     }
 
-    public void closeLeftPager(){
+    public void closeLeftPager() {
         this.smoothScrollTo(mMenuWidth, 0);
         isLeftMenuOpen = false;
     }
 
-    public void openLeftPager(){
+    public void openLeftPager() {
         this.smoothScrollTo(0, 0);
         mLeftContent.bringToFront();
         isLeftMenuOpen = true;
     }
-
 
 
     @Override
@@ -235,7 +283,7 @@ public class BinarySlidingView extends CustomHScrollView {
         super.onScrollChanged(l, t, oldl, oldt);
 
         float scale = l * 1.0f / mMenuWidth;
-        int alpha = 0,r =0,g=0,b=0;
+        int alpha = 0, r = 0, g = 0, b = 0;
         if (l > mMenuWidth) {
             isOperateRight = true;
             isOperateLeft = false;
@@ -247,7 +295,7 @@ public class BinarySlidingView extends CustomHScrollView {
             alpha = (int) (255 * (1 - scale));
             b = 255;
         }
-        Log.e(TAG, "onScrollChanged  alpha = "+ alpha  + ",scale - 1 = " + (scale -1)  + ",l = " + l + ",oldl = " + oldl);
+        Log.e(TAG, "onScrollChanged  alpha = " + alpha + ",scale - 1 = " + (scale - 1) + ",l = " + l + ",oldl = " + oldl);
         ColorDrawable colorDrawable = new ColorDrawable(Color.argb(alpha, r, g, b));
 
         mCenterContent.setForeground(colorDrawable);
