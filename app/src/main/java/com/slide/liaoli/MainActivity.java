@@ -13,6 +13,8 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -35,6 +37,7 @@ public class MainActivity extends FragmentActivity implements BlankFragment.OnFr
     List<Integer> mResId;
     List<ImageCardAdapter.CardItem> mCardItems;
     private int oldPosition;
+    private GestureDetector mGestureDetector;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +62,18 @@ public class MainActivity extends FragmentActivity implements BlankFragment.OnFr
         initView();
 
         initNavigation();
+        mGestureDetector = new GestureDetector(this,new GestureDetector.SimpleOnGestureListener(){
+
+            @Override
+            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+
+
+
+
+                return super.onFling(e1, e2, velocityX, velocityY);
+
+            }
+        });
 
     }
 
@@ -214,6 +229,15 @@ public class MainActivity extends FragmentActivity implements BlankFragment.OnFr
                 return fragments.size();
             }
         });
+    }
+
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+
+
+
+        return super.dispatchTouchEvent(ev);
     }
 
     @Override

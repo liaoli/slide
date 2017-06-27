@@ -9,7 +9,7 @@ package com.slide.view;
  * Created by chensuilun on 2017/3/23.
  */
 public class FlingRecycleView extends RecyclerView {
-    private boolean mIsFlingAble = true;
+    private boolean mIsFlingAble = false;
 
     public void setFlingAble(boolean flingAble) {
         mIsFlingAble = flingAble;

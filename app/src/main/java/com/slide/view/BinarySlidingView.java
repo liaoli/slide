@@ -7,8 +7,10 @@ import android.graphics.drawable.ColorDrawable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
@@ -42,6 +44,7 @@ public class BinarySlidingView extends CustomHScrollView {
     private boolean isLeftMenuOpen;
     private boolean isRightMenuOpen;
     private View toolbar;
+    private GestureDetector mGestureDetector;
 
     public void setToolbar(View toolbar) {
         this.toolbar = toolbar;
@@ -102,6 +105,8 @@ public class BinarySlidingView extends CustomHScrollView {
             }
         }
         a.recycle();
+
+        mGestureDetector = new GestureDetector(context, new YScrollDetector());
     }
 
     public BinarySlidingView(Context context) {
@@ -146,14 +151,32 @@ public class BinarySlidingView extends CustomHScrollView {
     public boolean onTouchEvent(MotionEvent ev) {
         int action = ev.getAction();
         int scrollX = getScrollX();
+        float oldX= 0,oldY= 0,newX=0,newY=0;
+
         switch (action) {
+
+            case MotionEvent.ACTION_DOWN:
+
+                oldX = ev.getX();
+                oldY = ev.getY();
+                break;
             // Up时，进行判断，如果显示区域大于菜单宽度一半则完全显示，否则隐藏
             case MotionEvent.ACTION_UP:
 
+                newX = ev.getX();
+                newY = ev.getY();
+
+                float k = (newY - oldY) / (newX - oldX);
+                int dx = (int) (newX - oldX);
+                int dy = (int) (newY - oldY);
+                Log.e(TAG, "onTouchEvent k = " + k + ",dx = " +dx + ",dy  = " + dy + ",oldX = " + oldX +",oldY = " + oldY + ",newX = " + newX + ",newY=" + newY);
 
                 //如果是操作左侧菜单
                 if (isOperateLeft) {
-                    Log.e(TAG, "onTouchEvent scrollX = " + scrollX + ",mScreenWidth = " + mScreenWidth + ",mHalfMenuWidth = " + mHalfMenuWidth + ",(mScreenWidth - mHalfMenuWidth)= " + (mScreenWidth - mHalfMenuWidth) +"isOperateLeft = " + isOperateLeft + "isLeftMenuOpen = " +isLeftMenuOpen);
+                    if (isLeftMenuOpen && scrollX == 0 && dx > 100) {
+                        Log.e(TAG, "onTouchEvent  go to chat");
+                    }
+                    Log.e(TAG, "onTouchEvent scrollX = " + scrollX + ",mScreenWidth = " + mScreenWidth + ",mHalfMenuWidth = " + mHalfMenuWidth + ",(mScreenWidth - mHalfMenuWidth)= " + (mScreenWidth - mHalfMenuWidth) + "isOperateLeft = " + isOperateLeft + "isLeftMenuOpen = " + isLeftMenuOpen + "k = " + k + ",dx = " +dx);
                     if (isLeftMenuOpen) {
                         //如果影藏的区域大于菜单一半，则影藏菜单
                         if (scrollX > mHalfMenuWidth) {
@@ -177,6 +200,8 @@ public class BinarySlidingView extends CustomHScrollView {
                             isLeftMenuOpen = true;
 
                         }
+
+
                     } else {
                         //如果影藏的区域大于菜单一半，则影藏菜单
 
@@ -206,7 +231,11 @@ public class BinarySlidingView extends CustomHScrollView {
 
                 //操作右侧
                 if (isOperateRight) {
-                    Log.e(TAG, "onTouchEvent scrollX = " + scrollX + ",mScreenWidth = " + mScreenWidth + ",mHalfMenuWidth = " + mHalfMenuWidth + ",(mScreenWidth + mHalfMenuWidth)= " + (mScreenWidth + mHalfMenuWidth) +"isOperateRight = " + isOperateRight + "isRightMenuOpen = " +isRightMenuOpen);
+
+                    if (isRightMenuOpen && scrollX == mScreenWidth * 2 && Math.abs(k) < 0.5 && dx < -100) {
+                        Log.e(TAG, "onTouchEvent  go to live");
+                    }
+                    Log.e(TAG, "onTouchEvent scrollX = " + scrollX + ",mScreenWidth = " + mScreenWidth + ",mHalfMenuWidth = " + mHalfMenuWidth + ",(mScreenWidth + mHalfMenuWidth)= " + (mScreenWidth + mHalfMenuWidth) + "isOperateRight = " + isOperateRight + "isRightMenuOpen = " + isRightMenuOpen);
                     if (isRightMenuOpen) {
                         //打开右侧侧滑菜单
                         if (scrollX > 2 * mMenuWidth - mHalfMenuWidth) {
@@ -249,6 +278,8 @@ public class BinarySlidingView extends CustomHScrollView {
                         }
                     }
                 }
+
+
                 return true;
         }
         return super.onTouchEvent(ev);
@@ -305,5 +336,86 @@ public class BinarySlidingView extends CustomHScrollView {
         //ViewHelper.setTranslationX(mCenterContent, mMenuWidth * (scale - 1));
         mCenterContent.setTranslationX(mMenuWidth * (scale - 1));
 
+    }
+
+
+    /**
+     * 如果竖向滑动距离<横向距离，执行横向滑动，否则竖向。如果是ScrollView，则'<'换成'>'
+     */
+    class YScrollDetector extends GestureDetector.SimpleOnGestureListener {
+
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            Log.e(TAG, "onScroll distanceX = " + distanceX + ",ViewConfiguration.get(getContext()).getScaledWindowTouchSlop()" + ViewConfiguration.get(getContext()).getScaledWindowTouchSlop());
+            if (Math.abs(distanceY) < Math.abs(distanceX) && Math.abs(distanceX) > ViewConfiguration.get(getContext()).getScaledWindowTouchSlop()) {
+
+                if (distanceX > ViewConfiguration.get(getContext()).getScaledWindowTouchSlop()) {
+
+
+                    if (isLeftMenuOpen) {
+                        Log.e(TAG, "onScroll distanceX = " + distanceX + "go to chat");
+                    }
+
+                }
+
+                if (distanceX < -ViewConfiguration.get(getContext()).getScaledWindowTouchSlop()) {
+
+                    if (isRightMenuOpen) {
+                        Log.e(TAG, "onScroll distanceX = " + distanceX + "go to live");
+                    }
+                }
+
+
+                return true;
+            }
+            return false;
+        }
+
+
+    }
+
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+
+
+      final int action = ev.getAction();
+        float oldX= 0,oldY= 0,newX=0,newY=0;
+
+        switch (action & MotionEvent.ACTION_MASK) {
+            case MotionEvent.ACTION_MOVE: {
+
+            }
+            break;
+            case MotionEvent.ACTION_DOWN: {
+
+                oldX = ev.getX();
+                oldY = ev.getY();
+            }
+
+            break;
+
+            case MotionEvent.ACTION_UP: {
+
+                newX = ev.getX();
+                newY = ev.getY();
+
+
+             float k = (newY - oldY) / (newX - oldX);
+
+                Log.e(TAG,"k = " + k);
+                if(Math.abs(k) >1.0/2){
+
+
+
+
+                    return false;
+                }
+
+            }
+
+            break;
+        }
+
+        return super.onInterceptTouchEvent(ev);
     }
 }
